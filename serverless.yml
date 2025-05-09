@@ -1,0 +1,27 @@
+org: naganjaneyulu
+app: serverless-lamda
+service: serverless
+
+# frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x  # Use nodejs20.x if preferred
+  region: us-east-1
+  environment:
+    SECRET_NAME: lamdasecrets  # The name of the secret in Secrets Manager
+    PG_URL_KEY: pg_url        # The key where the PostgreSQL connection string is stored in the secret
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - secretsmanager:GetSecretValue
+      Resource:
+        - arn:aws:secretsmanager:${self:provider.region}:${aws:accountId}:secret:lamdasecrets*
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /hello
+          method: get
